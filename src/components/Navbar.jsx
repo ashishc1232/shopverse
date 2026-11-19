@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { MdClose, MdMenu } from "react-icons/md";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
+    const items = useSelector(s => s.cart.items)
+    const totalQty = items.reduce((prev, item) => prev + item.quantity, 0)
     return (
         <div>
             <nav className="bg-slate-100 shadow-xl text-black" >
@@ -15,7 +18,15 @@ export default function Navbar() {
                         <li><Link className="hover:bg-black hover:text-white p-3" to={"/product"}>Home</Link></li>
                         <li><Link className="hover:bg-black hover:text-white p-3" to={"/"}>Products</Link></li>
                         <li><Link className="hover:bg-black hover:text-white p-3" to={"/"}>About</Link></li>
-                        <li><Link className="hover:bg-black hover:text-white p-3" to={"/cart"}>Cart</Link></li>
+                        <li><Link className=" relative hover:bg-black hover:text-white p-3" to={"/cart"}>
+                            {
+                                totalQty > 0 && (
+                                    <span className="px-3 text-white absolute bottom-7  rounded-full bg-red-800">{totalQty}</span>
+                                )
+                                
+                            }
+                            Cart
+                        </Link></li>
                     </ul>
                     <button className="md:hidden" onClick={() => setOpen(!open)}>
                         {

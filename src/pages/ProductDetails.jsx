@@ -1,35 +1,110 @@
+
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addToCart } from '../features/cartSlice';
 
 export default function ProductDetails() {
-    const [data, setData] = useState("");
-    const [loading, setLoading] = useState(false)
-    const { id } = useParams()
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
-    let fetchData = async () => {
-        try {
-            let response = await axios.get(`https://dummyjson.com/products/${id}`)
-            setData(response.data)
-        } catch (error) {
-            console.error(error)
-        }
-    }
+    const [data, setData] = useState(null);
+    const [selectedImg, setSelectedImg] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     useEffect(() => {
-        fetchData()
-    }, [])
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                let response = await axios.get(`https://dummyjson.com/products/${id}`);
+                setData(response.data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-96">
+                <span className="text-xl font-semibold">Loading...</span>
+            </div>
+        );
+    }
+
+    if (!data) {
+        return (
+            <div className="flex justify-center items-center h-96">
+                <span className="text-xl font-semibold text-red-500">Product not found.</span>
+            </div>
+        );
+    }
+
     return (
-        <div className='max-w-4xl mx-auto'>
-            <button className='border p-2 px-4 my-3 rounded-md bg-black text-white' onClick={() => navigate("/product")}>Back</button>
-            <img src={data.images} className='w-56' alt={data.title} />
-            <span className='bg-red-500 p-2 my-4 text-white'>{data.category}</span>
-            <h3 className='font-bold text-3xl py-2'>{data.title}</h3>
-            <p className='py-4 max-w-md'>{data.description}</p>
-            <button className='border p-2 bg-amber-700 text-white'
-             onClick={() => dispatch(addToCart(data))}>Add To Cart</button>
+        <div className="max-w-5xl mx-auto px-4 py-8">
+            <button
+                className="border p-2 px-4 mb-8 rounded-md bg-black text-white hover:bg-gray-800 transition"
+                onClick={() => navigate("/product")}
+            >
+                &larr; Back to Products
+            </button>
+            <div className="flex flex-col md:flex-row gap-10 bg-white rounded-lg shadow-lg p-6">
+                {/* Image Gallery */}
+                <div className="flex flex-col items-center md:w-1/2">
+                    <div className="border rounded-lg overflow-hidden mb-4 bg-gray-50">
+                        <img
+                            src={data.images && data.images[selectedImg]}
+                            alt={data.title}
+                            className="w-80 h-80 object-contain"
+                        />
+                    </div>
+                    <div className="flex gap-2">
+                        {data.images && data.images.map((img, idx) => (
+                            <img
+                                key={idx}
+                                src={img}
+                                alt={data.title + ' thumbnail'}
+                                className={`w-16 h-16 object-cover border rounded cursor-pointer ${selectedImg === idx ? 'ring-2 ring-amber-600' : ''}`}
+                                onClick={() => setSelectedImg(idx)}
+                            />
+                        ))}
+                    </div> 
+                </div>
+                {/* Product Info */}
+                <div className="flex-1 flex flex-col gap-4">
+                    <span className="inline-block bg-red-500 px-3 py-1 text-xs font-semibold text-white rounded-full w-fit">{data.category}</span>
+                    <h1 className="font-bold text-3xl md:text-4xl text-gray-900">{data.title}</h1>
+                    <div className="flex items-center gap-2">
+                        <span className="text-yellow-500 text-lg">{'★'.repeat(Math.round(data.rating))}{'☆'.repeat(5 - Math.round(data.rating))}</span>
+                        <span className="text-gray-600 text-sm">({data.rating} / 5)</span>
+                    </div>
+                    <div className="flex items-center gap-4 mt-2">
+                        <span className="text-2xl font-bold text-amber-700">${data.price}</span>
+                        {data.discountPercentage && (
+                            <span className="text-green-600 font-semibold bg-green-100 px-2 py-1 rounded text-xs">
+                                {data.discountPercentage}% OFF
+                            </span>
+                        )}
+                        <span className="text-gray-500 line-through">${(data.price / (1 - data.discountPercentage / 100)).toFixed(2)}</span>
+                    </div>
+                    <div className="flex gap-4 text-sm text-gray-700">
+                        <span><b>Brand:</b> {data.brand}</span>
+                        <span><b>Stock:</b> {data.stock > 0 ? data.stock : 'Out of stock'}</span>
+                    </div>
+                    <p className="py-2 max-w-xl text-gray-800 text-base">{data.description}</p>
+                    <button
+                        className="mt-4 border p-3 bg-amber-700 text-white font-semibold rounded hover:bg-amber-800 transition disabled:opacity-50"
+                        onClick={() => dispatch(addToCart(data))}
+                        disabled={data.stock === 0}
+                    >
+                        {data.stock === 0 ? 'Out of Stock' : 'Add To Cart'}
+                    </button>
+                </div>
+            </div>
         </div>
-    )
+    );
 }
