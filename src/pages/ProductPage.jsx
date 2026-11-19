@@ -10,20 +10,20 @@ export default function ProductPage() {
     const [activeCategory, setActiveCategory] = useState('All')
     const [sortBy, setSortBy] = useState('featured')
 
-    let fetchData = async () => {
-        try {
-            let response = await axios.get("https://dummyjson.com/products")
-            setData(response.data.products)
-        } catch (error) {
-            console.error(error)
-            setError('We couldn’t load the products. Please try again.')
-        } finally {
-            setLoading(false)
-        }
-    }
-
     useEffect(() => {
-        fetchData()
+        let active = true
+        axios.get("https://dummyjson.com/products")
+            .then((response) => {
+                if (active) setData(response.data.products)
+            })
+            .catch((error) => {
+                console.error(error)
+                if (active) setError('We couldn’t load the products. Please try again.')
+            })
+            .finally(() => {
+                if (active) setLoading(false)
+            })
+        return () => { active = false }
     }, [])
 
     const categories = ['All', ...new Set(data.map((item) => item.category))]
@@ -39,39 +39,12 @@ export default function ProductPage() {
 
     return (
         <main className="min-h-screen bg-stone-50 text-stone-900">
-            <div className="bg-stone-900 px-4 py-2 text-center text-xs font-medium tracking-wide text-white">
-                FREE SHIPPING ON ORDERS OVER $50 <span className="mx-2 text-stone-500">|</span> EASY 30-DAY RETURNS
-            </div>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <header className="flex flex-col gap-4 border-b border-stone-200 py-5 sm:flex-row sm:items-center sm:justify-between">
-                    <a href="#home" className="text-2xl font-black tracking-tight">shop<span className="text-emerald-700">verse.</span></a>
-                    <nav className="flex items-center gap-6 text-sm font-medium text-stone-600" aria-label="Main navigation">
-                        <a href="#products" className="transition hover:text-emerald-700">Shop</a>
-                        <a href="#new-arrivals" className="transition hover:text-emerald-700">New arrivals</a>
-                        <a href="#about" className="transition hover:text-emerald-700">Our story</a>
-                    </nav>
-                    <a href="#products" className="hidden rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold transition hover:border-stone-900 sm:inline-flex">Explore collection <span className="ml-2">→</span></a>
-                </header>
-
-                <section id="home" className="relative my-6 overflow-hidden rounded-3xl bg-emerald-950 px-6 py-12 text-white sm:px-12 sm:py-16 lg:py-20">
-                    <div className="absolute -right-16 -top-24 h-72 w-72 rounded-full bg-emerald-800/50 blur-3xl" />
-                    <div className="relative max-w-xl">
-                        <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-emerald-300">Thoughtful finds, everyday favorites</p>
-                        <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">Good things. <br />Better everyday.</h1>
-                        <p className="mt-4 max-w-md text-sm leading-6 text-emerald-100/80 sm:text-base">Discover well-loved essentials and little upgrades, picked to make more of every day.</p>
-                        <a href="#products" className="mt-7 inline-flex items-center rounded-full bg-white px-6 py-3 text-sm font-bold text-stone-900 transition hover:bg-emerald-100">Shop the collection <span className="ml-3">→</span></a>
-                    </div>
-                    <div className="absolute bottom-7 right-8 hidden text-right sm:block">
-                        <p className="text-5xl font-black text-white/10">01</p>
-                        <p className="mt-1 text-xs uppercase tracking-[0.2em] text-emerald-200">Curated for you</p>
-                    </div>
-                </section>
-
                 <section id="products" className="pb-14 pt-5">
                     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">The collection</p>
-                            <h2 className="mt-1 text-3xl font-bold tracking-tight">Find your next favorite</h2>
+                            <h1 className="mt-1 text-3xl font-bold tracking-tight">Find your next favorite</h1>
                         </div>
                         <p className="text-sm text-stone-500">{loading ? 'Finding good things…' : `${visibleProducts.length} products to explore`}</p>
                     </div>
@@ -116,11 +89,6 @@ export default function ProductPage() {
                     )}
                 </section>
 
-                <footer id="about" className="flex flex-col gap-2 border-t border-stone-200 py-6 text-sm text-stone-500 sm:flex-row sm:items-center sm:justify-between">
-                    <span className="font-bold text-stone-900">shop<span className="text-emerald-700">verse.</span></span>
-                    <span>Good finds for wherever life takes you.</span>
-                    <span>© {new Date().getFullYear()} Shopverse</span>
-                </footer>
             </div>
         </main>
     )

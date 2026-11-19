@@ -76,14 +76,14 @@ export default function ProductDetails() {
                 </div>
                 {/* Product Info */}
                 <div className="flex-1 flex flex-col gap-4">
-                    <span className="inline-block bg-red-500 px-3 py-1 text-xs font-semibold text-white rounded-full w-fit">{data.category}</span>
+                    <span className="inline-block w-fit rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold capitalize text-emerald-800">{data.category}</span>
                     <h1 className="font-bold text-3xl md:text-4xl text-gray-900">{data.title}</h1>
                     <div className="flex items-center gap-2">
-                        <span className="text-yellow-500 text-lg">{'★'.repeat(Math.round(data.rating))}{'☆'.repeat(5 - Math.round(data.rating))}</span>
+                        <span className="text-amber-500 text-lg">{'★'.repeat(Math.round(data.rating))}{'☆'.repeat(5 - Math.round(data.rating))}</span>
                         <span className="text-gray-600 text-sm">({data.rating} / 5)</span>
                     </div>
                     <div className="flex items-center gap-4 mt-2">
-                        <span className="text-2xl font-bold text-amber-700">${data.price}</span>
+                        <span className="text-2xl font-bold text-emerald-800">${data.price}</span>
                         {data.discountPercentage && (
                             <span className="text-green-600 font-semibold bg-green-100 px-2 py-1 rounded text-xs">
                                 {data.discountPercentage}% OFF
@@ -97,7 +97,7 @@ export default function ProductDetails() {
                     </div>
                     <p className="py-2 max-w-xl text-gray-800 text-base">{data.description}</p>
                     <button
-                        className="mt-4 border p-3 bg-amber-700 text-white font-semibold rounded hover:bg-amber-800 transition disabled:opacity-50"
+                        className="mt-4 rounded-lg bg-stone-950 p-3 font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-50"
                         onClick={() => dispatch(addToCart(data))}
                         disabled={data.stock === 0}
                     >
